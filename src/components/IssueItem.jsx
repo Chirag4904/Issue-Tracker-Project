@@ -1,4 +1,5 @@
 import { GoIssueOpened, GoIssueClosed, GoComment } from "react-icons/go";
+import { useQueryClient } from "react-query";
 import { Link } from "react-router-dom";
 import { relativeDate } from "../helpers/relativeDate";
 import { useUserData } from "../helpers/useUserData";
@@ -16,9 +17,21 @@ export function IssueItem({
 }) {
 	const assigneeUser = useUserData(assignee);
 	const createdByUser = useUserData(createdBy);
+	const queryClient = useQueryClient();
 	// console.log(labels);
 	return (
-		<li>
+		<li
+			onMouseEnter={() => {
+				queryClient.prefetchQuery(["issues", number.toString()], () =>
+					fetch(`/api/issues/${number}`).then((res) => res.json())
+				);
+				queryClient.prefetchQuery(
+					["issues", number.toString(), "comments"],
+					() =>
+						fetch(`/api/issues/${number}/comments`).then((res) => res.json())
+				);
+			}}
+		>
 			<div>
 				{status === "done" || status === "cancelled" ? (
 					<GoIssueClosed style={{ color: "red" }} />

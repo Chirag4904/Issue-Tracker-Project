@@ -1,16 +1,23 @@
-import { useQuery } from "react-query";
+import { useQuery, useQueryClient } from "react-query";
 import { IssueItem } from "./IssueItem";
 import { useState } from "react";
 import fetchWithError from "../helpers/fetchWithError";
 import Loader from "./Loader";
 export default function IssuesList({ labels, status }) {
+	const queryClient = useQueryClient();
 	const issuesQuery = useQuery(
 		["issues", { labels, status }],
-		() => {
+		async () => {
 			const statusString = status ? `&status=${status}` : "";
 			const labelsString = labels.map((label) => `labels[]=${label}`).join("&");
 			// console.log(labelsString);
-			return fetchWithError(`/api/issues?${labelsString}${statusString}`);
+			const results = await fetchWithError(
+				`/api/issues?${labelsString}${statusString}`
+			);
+			results.forEach((issue) => {
+				queryClient.setQueryData(["issues", issue.number.toString()], issue);
+			});
+			return results;
 		},
 		{
 			staleTime: 1000 * 60,
@@ -37,7 +44,7 @@ export default function IssuesList({ labels, status }) {
 		}
 	);
 
-	console.log("hello bhailog");
+	// console.log("hello bhailog");
 
 	return (
 		<div>
@@ -62,7 +69,7 @@ export default function IssuesList({ labels, status }) {
 			{issuesQuery.isLoading ? (
 				<p>Loading...</p>
 			) : issuesQuery.isError ? (
-				<p>{issuesQuery.error.message} ebbfehjbfebfhebf</p>
+				<p>{issuesQuery.error.message}</p>
 			) : searchQuery.fetchStatus === "idle" && searchQuery.isLoading ? (
 				<ul className="issues-list">
 					{issuesQuery.data.map((issue) => {
