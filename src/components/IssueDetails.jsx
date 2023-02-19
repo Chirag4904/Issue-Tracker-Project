@@ -3,6 +3,8 @@ import { useParams } from "react-router-dom";
 import { relativeDate } from "../helpers/relativeDate";
 import { IssueHeader } from "./IssueHeader";
 import { useUserData } from "../helpers/useUserData";
+import { useDiceBear } from "../helpers/useDiceBear";
+import IssueStatus from "./IssueStatus";
 
 function useIssueData(issueNumber) {
 	return useQuery(["issues", issueNumber], () => {
@@ -21,7 +23,9 @@ function useIssueComments(issueNumber) {
 function Comment({ comment, createdBy, createdDate }) {
 	const userQuery = useUserData(createdBy);
 
-	if (userQuery.isLoading)
+	const userImageQuery = useDiceBear(createdBy);
+
+	if (userQuery.isLoading || userImageQuery.isLoading)
 		return (
 			<div className="comment">
 				<div>
@@ -32,7 +36,7 @@ function Comment({ comment, createdBy, createdDate }) {
 
 	return (
 		<div className="comment">
-			<img src={userQuery.data.profilePictureUrl} alt={userQuery.data.name} />
+			<img src={userImageQuery.data.url} alt={userQuery.data.name} />
 			<div>
 				<div className="comment-header">
 					<span>{userQuery.data.name}</span> commented{" "}
@@ -65,7 +69,12 @@ const IssueDetails = () => {
 								))
 							)}
 						</section>
-						<aside></aside>
+						<aside>
+							<IssueStatus
+								status={issueQuery.data.status}
+								issueNumber={issueQuery.data.number.toString()}
+							/>
+						</aside>
 					</main>
 				</>
 			)}
