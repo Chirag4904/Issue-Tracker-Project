@@ -2,6 +2,7 @@ import { GoIssueOpened, GoIssueClosed, GoComment } from "react-icons/go";
 import { useQueryClient } from "react-query";
 import { Link } from "react-router-dom";
 import { relativeDate } from "../helpers/relativeDate";
+import { useDiceBear } from "../helpers/useDiceBear";
 import { useUserData } from "../helpers/useUserData";
 import { Label } from "./Label";
 
@@ -15,10 +16,11 @@ export function IssueItem({
 	labels,
 	status,
 }) {
-	const assigneeUser = useUserData(assignee);
+	// console.log(assignee);
+	const assigneeUser = useDiceBear(assignee);
+
 	const createdByUser = useUserData(createdBy);
 	const queryClient = useQueryClient();
-	// console.log(labels);
 	return (
 		<li
 			onMouseEnter={() => {
@@ -53,13 +55,12 @@ export function IssueItem({
 			</div>
 			{assignee ? (
 				<img
-					src={
-						assigneeUser.isSuccess ? assigneeUser.data.profilePictureUrl : ""
-					}
+					src={assigneeUser.isSuccess ? assigneeUser.data.url : ""}
 					className="assigned-to"
 					alt={assignee}
 				/>
 			) : null}
+
 			<span className="comment-count">
 				{commentCount > 0 ? (
 					<>
