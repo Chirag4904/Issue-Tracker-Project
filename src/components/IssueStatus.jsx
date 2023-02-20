@@ -4,7 +4,7 @@ export default function IssueStatus({ status, issueNumber }) {
 	const queryClient = useQueryClient();
 	const setStatus = useMutation(
 		(status) => {
-			fetch(`/api/issues/${issueNumber}`, {
+			return fetch(`/api/issues/${issueNumber}`, {
 				method: "PUT",
 				headers: {
 					"content-type": "application/json",
@@ -31,7 +31,7 @@ export default function IssueStatus({ status, issueNumber }) {
 				return function rollback() {
 					queryClient.setQueryData(["issues", issueNumber], (oldData) => ({
 						...oldData,
-						oldStatus,
+						status: oldStatus,
 					}));
 				};
 			},
